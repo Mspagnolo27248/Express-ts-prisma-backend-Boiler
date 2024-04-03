@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Receipt {
+  ProductCode String   @db.VarChar(4)
+  ProductDesc String?  @db.VarChar(55)
+  Date        DateTime @db.Date
+  Qty         Float
+
+  @@id([ProductCode, Date], map: "PK_Receipts")
+  @@map("Receipts")
+}
+
+model BlendRequirements {
+  Finished_ProductCode  String  @db.VarChar(4)
+  Component_ProductCode String  @db.VarChar(4)
+  Finished_ProductDesc  String? @db.VarChar(55)
+  Component_ProductDesc String? @db.VarChar(55)
+  BlendPercent          Float
+
+  @@id([Finished_ProductCode, Component_ProductCode], map: "PK_BlendRequirements")
+}
+
+model CurrentInventory {
+  id          Int    @id(map: "PK_CurrentInventory") @default(autoincrement())
+  ProductCode String @db.VarChar(4)
+  Qty         Float?
+}
+
+model EndingInventory {
+  Date            DateTime @db.Date
+  ProductCode     String   @db.VarChar(4)
+  ProductDesc     String?  @db.VarChar(55)
+  BeginInventory  Float?
+  Receipts        Float?
+  ProductionIn    Float?
+  ProductionOut   Float?
+  Demand          Float?
+  BlendedOut      Float?
+  EndingInventory Float?
+
+  @@id([Date, ProductCode], map: "PK__EndingIn__85CC9D22F1ADA650")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model GeneralData {
+  id     Int     @id @default(autoincrement())
+  Metric String? @db.NChar(10)
+  Value  String? @db.NChar(50)
+}
+
+model MonthlyDemandForecast {
+  YYYYMM               String  @db.NChar(10)
+  Finished_ProductCode String  @db.NChar(4)
+  Finished_ProductDesc String? @db.NChar(55)
+  Qty                  Float?
+
+  @@id([YYYYMM, Finished_ProductCode], map: "PK_MonthlyDemandForecast")
+}
+
+model Products {
+  id                 Int    @id(map: "PK_Products") @default(autoincrement())
+  ProductCode        String @db.VarChar(4)
+  ProductDescription String @db.VarChar(55)
+  ClassCode          String @db.VarChar(55)
+  Division           String @db.VarChar(55)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model RunningDays {
+  Date DateTime? @db.Date
+
+  @@ignore
+}
+
+model Schedule {
+  Unit               String   @db.VarChar(10)
+  Date               DateTime @db.Date
+  Charge_ProductCode String   @db.VarChar(4)
+  Charge_ProductDesc String   @db.VarChar(55)
+  Qty                Float
+
+  @@id([Unit, Date, Charge_ProductCode], map: "PK_Schedule")
+}
+
+model UnitChargeProducts {
+  Unit               String @db.VarChar(10)
+  Charge_ProductCode String @db.VarChar(4)
+  Charge_ProductDesc String @db.VarChar(55)
+  MaxDailyRate       Float
+
+  @@id([Unit, Charge_ProductCode], map: "PK_UnitChargeProducts")
+}
+
+model Units {
+  UnitCode String @id(map: "PK_Units") @db.VarChar(55)
+}
+
+model UnitYields {
+  Unit                 String  @db.VarChar(10)
+  Charge_ProductCode   String  @db.VarChar(4)
+  Charge_ProductDesc   String? @db.VarChar(55)
+  Finished_ProductCode String  @db.VarChar(4)
+  Finished_ProductDesc String? @db.VarChar(55)
+  OutputPercent        Float
+
+  @@id([Unit, Charge_ProductCode, Finished_ProductCode], map: "PK__UnitYiel__8E8C1873E1FD4A85")
+}
